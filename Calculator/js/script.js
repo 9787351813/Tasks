@@ -1,53 +1,82 @@
-document.addEventListener('DOMContentLoaded', function() {
-    let result = document.getElementById('result');
-    let clear = document.getElementById('clear');
-    let equal = document.getElementById('equal');
-    let subtract = document.getElementById('subtract');
-    let buttons = document.querySelectorAll('.calculator button');
-    let currentOperation = '';
+document.addEventListener('DOMContentLoaded', () => {
+    const result = document.getElementById('result');
+    let currentInput = '';
+    let operator = '';
+    let firstOperand = '';
+    let secondOperand = '';
 
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (button.id !== 'equal' && button.id !== 'clear') {
-                result.value += button.textContent;
-            }
+    // Function to clear the result field
+    const clearResult = () => {
+        currentInput = '';
+        operator = '';
+        firstOperand = '';
+        secondOperand = '';
+        result.value = '';
+    };
+
+    // Function to handle number and decimal input
+    const handleNumber = (number) => {
+        if (operator === '') {
+            firstOperand += number;
+            currentInput = firstOperand;
+        } else {
+            secondOperand += number;
+            currentInput = secondOperand;
+        }
+        result.value = currentInput;
+    };
+
+    // Function to handle operator input
+    const handleOperator = (op) => {
+        if (firstOperand === '') return;
+        operator = op;
+        currentInput = '';
+    };
+
+    // Function to perform calculation
+    const calculate = () => {
+        if (firstOperand === '' || secondOperand === '' || operator === '') return;
+        const num1 = parseFloat(firstOperand);
+        const num2 = parseFloat(secondOperand);
+        let calcResult;
+
+        switch (operator) {
+            case '+':
+                calcResult = num1 + num2;
+                break;
+            case '-':
+                calcResult = num1 - num2;
+                break;
+            case '*':
+                calcResult = num1 * num2;
+                break;
+            case '/':
+                calcResult = num1 / num2;
+                break;
+            default:
+                return;
+        }
+
+        result.value = calcResult;
+        firstOperand = calcResult.toString();
+        secondOperand = '';
+        operator = '';
+    };
+
+    // Adding event listeners to the buttons
+    document.getElementById('clear').addEventListener('click', clearResult);
+
+    ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'decimal'].forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => {
+            handleNumber(e.target.textContent);
         });
     });
 
-    clear.addEventListener('click', function() {
-        result.value = '';
-        currentOperation = '';
+    ['add', 'subtract', 'multiply', 'divide'].forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => {
+            handleOperator(e.target.textContent);
+        });
     });
 
-    equal.addEventListener('click', function() {
-        try {
-            result.value = eval(result.value);
-        } catch {
-            result.value = 'Error';
-        }
-    });
-
-    // Adding conditions for specific operations
-    document.getElementById('1').addEventListener('click', function() {
-        if (currentOperation === '') {
-            result.value += '1';
-        }
-    });
-
-    document.getElementById('2').addEventListener('click', function() {
-        if (currentOperation === '') {
-            result.value += '2';
-        }
-    });
-
-    document.getElementById('3').addEventListener('click', function() {
-        if (currentOperation === 'subtract') {
-            result.value += '3';
-        }
-    });
-
-    subtract.addEventListener('click', function() {
-        currentOperation = 'subtract';
-        result.value += '-';
-    });
+    document.getElementById('equal').addEventListener('click', calculate);
 });
